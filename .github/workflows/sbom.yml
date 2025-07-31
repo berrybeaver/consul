@@ -34,3 +34,9 @@ jobs:
       - name: Scan for Vulnerabilities
         run: |      
           grype sbom:sbom.json 
+
+      - name: Upload SBOM Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: sbom
+          path: sbom.json
