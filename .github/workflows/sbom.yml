@@ -1,0 +1,34 @@
+name: Security Scan
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+
+      - name: Install Syft
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
+
+      - name: Generate SBOM
+        run: |
+          # Replace <image> with your container image name or use a directory path
+          syft <image> -o cyclonedx-json > sbom.json
+
+      - name: Install Grype
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin
+
+      - name: Scan for Vulnerabilities
+        run: |
+          # Scan the container image or the SBOM for vulnerabilities
+          grype <image> --fail-on high
+          # Alternatively, scan using the generated SBOM:
+          # grype sbom:sbom.json --fail-on high
