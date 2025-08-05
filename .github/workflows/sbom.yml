@@ -30,9 +30,9 @@ jobs:
         run: |
           curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin
 
-      - name: Scan for Vulnerabilities
-        run: |      
-          grype sbom:sbom.json 
+      - name: Scan for Vulnerabilities and Save to File
+        run: |
+          grype sbom:sbom.json -o table > vulnerabilities.txt || true
 
       - name: Upload SBOM Artifact
         uses: actions/upload-artifact@v4
@@ -44,3 +44,14 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: sbom.json
+
+      - name: Upload Vulnerabilities Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: vulnerabilities
+          path: vulnerabilities.txt
+
+      - name: Upload Vulnerabilities to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: vulnerabilities.txt
